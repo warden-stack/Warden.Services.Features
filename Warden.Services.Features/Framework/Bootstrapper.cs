@@ -4,6 +4,7 @@ using Nancy.Bootstrapper;
 using NLog;
 using RawRabbit;
 using RawRabbit.vNext;
+using RawRabbit.Configuration;
 using Warden.Common.Caching;
 using Warden.Common.Commands;
 using Warden.Common.Commands.ApiKeys;
@@ -48,7 +49,10 @@ namespace Warden.Services.Features.Framework
                 builder.RegisterModule<InMemoryCacheModule>();
                 builder.RegisterType<MongoDbInitializer>().As<IDatabaseInitializer>();
                 builder.RegisterType<DatabaseSeeder>().As<IDatabaseSeeder>();
-                builder.RegisterInstance(BusClientFactory.CreateDefault()).As<IBusClient>();
+                var rawRabbitConfiguration = _configuration.GetSettings<RawRabbitConfiguration>();
+                builder.RegisterInstance(rawRabbitConfiguration).SingleInstance();
+                builder.RegisterInstance(BusClientFactory.CreateDefault(rawRabbitConfiguration))
+                    .As<IBusClient>();
                 builder.RegisterType<UserRepository>().As<IUserRepository>();
                 builder.RegisterType<PaymentPlanRepository>().As<IPaymentPlanRepository>();
                 builder.RegisterType<UserPaymentPlanRepository>().As<IUserPaymentPlanRepository>();
