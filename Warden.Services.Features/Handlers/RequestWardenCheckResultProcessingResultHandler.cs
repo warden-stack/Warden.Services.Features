@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using RawRabbit;
 using Warden.Common.Commands;
-using Warden.Common.Commands.WardenChecks;
-using Warden.Common.Events.Features;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Services;
+using Warden.Services.Features.Shared.Events;
+using Warden.Services.WardenChecks.Shared.Commands;
 
 namespace Warden.Services.Features.Handlers
 {
-    public class RequestWardenCheckResultProcessingResultHandler : ICommandHandler<RequestWardenCheckResultProcessing>
+    public class RequestWardenCheckResultProcessingResultHandler : ICommandHandler<RequestProcessWardenCheckResult>
     {
         private readonly IBusClient _bus;
         private readonly IUserFeaturesManager _userFeaturesManager;
@@ -19,7 +19,7 @@ namespace Warden.Services.Features.Handlers
             _userFeaturesManager = userFeaturesManager;
         }
 
-        public async Task HandleAsync(RequestWardenCheckResultProcessing command)
+        public async Task HandleAsync(RequestProcessWardenCheckResult command)
         {
             var featureAvailable = await _userFeaturesManager
                 .IsFeatureIfAvailableAsync(command.UserId, FeatureType.AddWardenCheck);

@@ -7,15 +7,7 @@ using RawRabbit.vNext;
 using RawRabbit.Configuration;
 using Warden.Common.Caching;
 using Warden.Common.Commands;
-using Warden.Common.Commands.ApiKeys;
-using Warden.Common.Commands.Organizations;
-using Warden.Common.Commands.WardenChecks;
-using Warden.Common.Commands.Wardens;
 using Warden.Common.Events;
-using Warden.Common.Events.ApiKeys;
-using Warden.Common.Events.Organizations;
-using Warden.Common.Events.Users;
-using Warden.Common.Events.Wardens;
 using Warden.Common.Extensions;
 using Warden.Common.Mongo;
 using Warden.Common.Nancy;
@@ -23,6 +15,12 @@ using Warden.Services.Features.Handlers;
 using Warden.Services.Features.Repositories;
 using Warden.Services.Features.Services;
 using Warden.Services.Features.Settings;
+using Warden.Services.Organizations.Shared.Commands;
+using Warden.Services.Organizations.Shared.Events;
+using Warden.Services.Users.Shared.Commands;
+using Warden.Services.Users.Shared.Events;
+using Warden.Services.WardenChecks.Shared.Commands;
+using Warden.Services.WardenChecks.Shared.Events;
 
 namespace Warden.Services.Features.Framework
 {
@@ -63,10 +61,10 @@ namespace Warden.Services.Features.Framework
                 builder.RegisterType<RequestNewApiKeyHandler>().As<ICommandHandler<RequestNewApiKey>>();
                 builder.RegisterType<ApiKeyCreatedHandler>().As<IEventHandler<ApiKeyCreated>>();
                 builder.RegisterType<RequestWardenCheckResultProcessingResultHandler>()
-                    .As<ICommandHandler<RequestWardenCheckResultProcessing>>();
+                    .As<ICommandHandler<RequestProcessWardenCheckResult>>();
                 builder.RegisterType<WardenCheckResultProcessedHandler>()
                     .As<IEventHandler<WardenCheckResultProcessed>>();
-                builder.RegisterType<NewUserSignedInHandler>().As<IEventHandler<NewUserSignedIn>>();
+                builder.RegisterType<SignedUpHandler>().As<IEventHandler<SignedUp>>();
                 builder.RegisterType<RequestNewWardenHandler>().As<ICommandHandler<RequestNewWarden>>();
                 builder.RegisterType<WardenCreatedHandler>().As<IEventHandler<WardenCreated>>();
                 builder.RegisterType<RequestNewOrganizationHandler>().As<ICommandHandler<RequestNewOrganization>>();

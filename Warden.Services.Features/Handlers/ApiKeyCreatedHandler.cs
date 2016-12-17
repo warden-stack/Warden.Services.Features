@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Warden.Common.Events;
-using Warden.Common.Events.ApiKeys;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Services;
+using Warden.Services.Users.Shared.Events;
 
 namespace Warden.Services.Features.Handlers
 {

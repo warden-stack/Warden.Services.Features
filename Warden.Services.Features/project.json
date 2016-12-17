@@ -7,6 +7,11 @@
   "dependencies": {
     "Warden.Common": "1.0.*",
     "Warden.Services.Features.Shared": "1.0.*",
+    "Warden.Services.Organizations.Shared": "1.0.*",
+    "Warden.Services.Spawn.Shared": "1.0.*",
+    "Warden.Services.Stats.Shared": "1.0.*",
+    "Warden.Services.Users.Shared": "1.0.*",
+    "Warden.Services.WardenChecks.Shared": "1.0.*",
     "Autofac": "4.1.0",
     "Nancy": "2.0.0-barneyrubble",
     "NLog.Extensions.Logging": "1.0.0-*",

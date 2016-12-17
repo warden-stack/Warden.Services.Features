@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using RawRabbit;
 using Warden.Common.Commands;
-using Warden.Common.Commands.ApiKeys;
-using Warden.Common.Events.Features;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Services;
+using Warden.Services.Features.Shared.Events;
+using Warden.Services.Users.Shared.Commands;
 
 namespace Warden.Services.Features.Handlers
 {
@@ -34,8 +34,8 @@ namespace Warden.Services.Features.Handlers
 
             await _bus.PublishAsync(new CreateApiKey
             {
-                ApiKeyId = command.ApiKeyId,
                 UserId = command.UserId,
+                Name = command.Name,
                 Request = command.Request
             });
         }
