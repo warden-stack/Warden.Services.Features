@@ -27,7 +27,7 @@ namespace Warden.Services.Features.Handlers
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,
                     command.UserId, FeatureType.AddOrganization.ToString(),
-                    "Organization limit reached."));
+                    "error","Organization limit reached."));
 
                 return;
             }

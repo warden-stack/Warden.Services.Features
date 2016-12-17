@@ -1,5 +1,6 @@
 ﻿using System;
 using Warden.Common.Domain;
+using Warden.Common.Exceptions;
 using Warden.Common.Extensions;
 
 namespace Warden.Services.Features.Domain

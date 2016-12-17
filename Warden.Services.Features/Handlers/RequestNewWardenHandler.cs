@@ -28,7 +28,7 @@ namespace Warden.Services.Features.Handlers
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,
                     command.UserId, FeatureType.AddWarden.ToString(),
-                    "Warden limit reached."));
+                    "error", "Warden limit reached."));
 
                 return;
             }

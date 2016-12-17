@@ -1,0 +1,24 @@
+﻿{
+	"name": "Warden.Services.Features.Shared",
+	"authors": ["Piotr Gankiewicz"],
+	"title": "Warden.Services.Features.Shared",
+	"version": "1.0.0-*",
+	"packOptions": {
+		"licenseUrl": "https://github.com/warden-stack/Warden.Services.Features/blob/master/README.md",
+		"projectUrl": "https://github.com/warden-stack/Warden.Services.Features",
+		"packageType": "DotnetCliTool"
+	},
+	"dependencies": {
+		"Warden.Common": "1.0.*"
+	},
+	"frameworks": {
+		"netcoreapp1.1": {
+			"dependencies": {
+				"Microsoft.NETCore.App": {
+					"version": "1.1.0",
+					"type": "platform"
+				}
+			}
+		}
+	}
+}

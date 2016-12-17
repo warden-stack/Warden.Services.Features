@@ -27,7 +27,7 @@ namespace Warden.Services.Features.Handlers
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,
                     command.UserId, FeatureType.AddApiKey.ToString(),
-                    "API key limit reached."));
+                    "error","API key limit reached."));
 
                 return;
             }
