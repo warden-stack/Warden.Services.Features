@@ -23,6 +23,7 @@ using Warden.Services.Users.Shared.Events;
 using Warden.Services.WardenChecks.Shared.Commands;
 using Warden.Services.WardenChecks.Shared.Events;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace Warden.Services.Features.Framework
 {
@@ -60,18 +61,10 @@ namespace Warden.Services.Features.Framework
                 builder.RegisterType<WardenChecksCounter>().As<IWardenChecksCounter>();
                 builder.RegisterType<UserFeaturesManager>().As<IUserFeaturesManager>();
                 builder.RegisterType<UserPaymentPlanService>().As<IUserPaymentPlanService>();
-                builder.RegisterType<UserPaymentPlanService>().As<IUserPaymentPlanService>();
-                builder.RegisterType<RequestNewApiKeyHandler>().As<ICommandHandler<RequestNewApiKey>>();
-                builder.RegisterType<ApiKeyCreatedHandler>().As<IEventHandler<ApiKeyCreated>>();
-                builder.RegisterType<RequestWardenCheckResultProcessingResultHandler>()
-                    .As<ICommandHandler<RequestProcessWardenCheckResult>>();
-                builder.RegisterType<WardenCheckResultProcessedHandler>()
-                    .As<IEventHandler<WardenCheckResultProcessed>>();
-                builder.RegisterType<SignedUpHandler>().As<IEventHandler<SignedUp>>();
-                builder.RegisterType<RequestNewWardenHandler>().As<ICommandHandler<RequestNewWarden>>();
-                builder.RegisterType<WardenCreatedHandler>().As<IEventHandler<WardenCreated>>();
-                builder.RegisterType<RequestNewOrganizationHandler>().As<ICommandHandler<RequestNewOrganization>>();
-                builder.RegisterType<OrganizationCreatedHandler>().As<IEventHandler<OrganizationCreated>>();
+
+                var assembly = typeof(Startup).GetTypeInfo().Assembly;
+                builder.RegisterAssemblyTypes(assembly).AsClosedTypesOf(typeof(IEventHandler<>));
+                builder.RegisterAssemblyTypes(assembly).AsClosedTypesOf(typeof(ICommandHandler<>));
             });
             LifetimeScope = container;
         }

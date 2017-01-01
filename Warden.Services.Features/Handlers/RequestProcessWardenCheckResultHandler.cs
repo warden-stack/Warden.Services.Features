@@ -8,12 +8,12 @@ using Warden.Services.WardenChecks.Shared.Commands;
 
 namespace Warden.Services.Features.Handlers
 {
-    public class RequestWardenCheckResultProcessingResultHandler : ICommandHandler<RequestProcessWardenCheckResult>
+    public class RequestProcessWardenCheckResultHandler : ICommandHandler<RequestProcessWardenCheckResult>
     {
         private readonly IBusClient _bus;
         private readonly IUserFeaturesManager _userFeaturesManager;
 
-        public RequestWardenCheckResultProcessingResultHandler(IBusClient bus, IUserFeaturesManager userFeaturesManager)
+        public RequestProcessWardenCheckResultHandler(IBusClient bus, IUserFeaturesManager userFeaturesManager)
         {
             _bus = bus;
             _userFeaturesManager = userFeaturesManager;
