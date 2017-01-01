@@ -11,6 +11,7 @@ using Warden.Common.Events;
 using Warden.Common.Extensions;
 using Warden.Common.Mongo;
 using Warden.Common.Nancy;
+using Warden.Common.Nancy.Serialization;
 using Warden.Services.Features.Handlers;
 using Warden.Services.Features.Repositories;
 using Warden.Services.Features.Services;
@@ -21,6 +22,7 @@ using Warden.Services.Users.Shared.Commands;
 using Warden.Services.Users.Shared.Events;
 using Warden.Services.WardenChecks.Shared.Commands;
 using Warden.Services.WardenChecks.Shared.Events;
+using Newtonsoft.Json;
 
 namespace Warden.Services.Features.Framework
 {
@@ -43,6 +45,7 @@ namespace Warden.Services.Features.Framework
                 builder.RegisterInstance(_configuration.GetSettings<MongoDbSettings>());
                 builder.RegisterInstance(_configuration.GetSettings<FeatureSettings>());
                 builder.RegisterInstance(_configuration.GetSettings<PaymentPlanSettings>());
+                builder.RegisterType<CustomJsonSerializer>().As<JsonSerializer>().SingleInstance();
                 builder.RegisterModule<MongoDbModule>();
                 builder.RegisterModule<InMemoryCacheModule>();
                 builder.RegisterType<MongoDbInitializer>().As<IDatabaseInitializer>();
