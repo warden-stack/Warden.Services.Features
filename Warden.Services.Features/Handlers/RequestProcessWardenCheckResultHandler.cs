@@ -35,7 +35,6 @@ namespace Warden.Services.Features.Handlers
             await _bus.PublishAsync(new ProcessWardenCheckResult
             {
                 UserId = command.UserId,
-                CreatedAt = command.CreatedAt,
                 OrganizationId = command.OrganizationId,
                 WardenId = command.WardenId,
                 Check = command.Check,
