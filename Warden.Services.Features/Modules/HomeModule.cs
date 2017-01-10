@@ -1,12 +1,10 @@
-﻿using Nancy;
-
-namespace Warden.Services.Features.Modules
+﻿namespace Warden.Services.Features.Modules
 {
     public class HomeModule : ModuleBase
     {
         public HomeModule()
         {
-            Get("", args => Response.AsJson(new { name = "Warden.Services.Features" }));
+            Get("", args => "Welcome to the Warden.Services.Features API!");
         }
     }
 }
