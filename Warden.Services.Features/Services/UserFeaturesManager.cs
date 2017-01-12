@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NLog;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Repositories;
 using Warden.Services.Features.Settings;
@@ -9,6 +10,7 @@ namespace Warden.Services.Features.Services
 {
     public class UserFeaturesManager : IUserFeaturesManager
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
         private readonly IWardenChecksCounter _wardenChecksCounter;
         private readonly IUserRepository _userRepository;
         private readonly IUserPaymentPlanRepository _userPaymentPlanRepository;
@@ -25,7 +27,7 @@ namespace Warden.Services.Features.Services
             _paymentPlanSettings = paymentPlanSettings;
         }
 
-        public async Task<bool> IsFeatureIfAvailableAsync(string userId, FeatureType feature)
+        public async Task<bool> IsFeatureAvailableAsync(string userId, FeatureType feature)
         {
             if (!_paymentPlanSettings.Enabled)
                 return true;
@@ -34,8 +36,14 @@ namespace Warden.Services.Features.Services
             if (feature == FeatureType.AddWardenCheck)
             {
                 var wardenChecksUsageInitialized = await _wardenChecksCounter.IsInitializedAsync(userId);
-                if (!wardenChecksUsageInitialized)
+                if (wardenChecksUsageInitialized)
+                {
+                    return true;
+                }
+                else
+                {
                     initializeWardenChecksUsage = true;
+                }
             }
 
             var user = await _userRepository.GetAsync(userId);
@@ -71,9 +79,10 @@ namespace Warden.Services.Features.Services
                 if (!canUseWardenCheckAsync)
                     return;
 
+                Logger.Debug($"Increasing feature usage: '{feature}' for user: '{userId}'.");
                 await _wardenChecksCounter.IncreaseUsageAsync(userId);
                 var usage = await _wardenChecksCounter.GetUsageAsync(userId);
-                if (usage%_paymentPlanSettings.FlushWardenChecksLimit != 0)
+                if (usage % _paymentPlanSettings.FlushWardenChecksLimit != 0)
                     return;
             }
 
@@ -92,6 +101,7 @@ namespace Warden.Services.Features.Services
                 throw new InvalidOperationException($"Feature {feature} has reached its limit.");
 
             monthlySubscription.IncreaseFeatureUsage(feature);
+            Logger.Debug($"Increasing and saving feature usage: '{feature}' for user: '{userId}'.");
             await _userPaymentPlanRepository.UpdateAsync(paymentPlan.Value);
         }
     }

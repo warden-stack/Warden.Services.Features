@@ -22,7 +22,7 @@ namespace Warden.Services.Features.Handlers
         public async Task HandleAsync(RequestNewApiKey command)
         {
             var featureAvailable = await _userFeaturesManager
-                .IsFeatureIfAvailableAsync(command.UserId, FeatureType.AddApiKey);
+                .IsFeatureAvailableAsync(command.UserId, FeatureType.AddApiKey);
             if (!featureAvailable)
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,

@@ -22,7 +22,7 @@ namespace Warden.Services.Features.Handlers
         public async Task HandleAsync(RequestProcessWardenCheckResult command)
         {
             var featureAvailable = await _userFeaturesManager
-                .IsFeatureIfAvailableAsync(command.UserId, FeatureType.AddWardenCheck);
+                .IsFeatureAvailableAsync(command.UserId, FeatureType.AddWardenCheck);
             if (!featureAvailable)
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,

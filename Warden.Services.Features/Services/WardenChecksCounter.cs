@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using NLog;
 using Warden.Common.Caching;
 
 namespace Warden.Services.Features.Services
 {
     public class WardenChecksCounter : IWardenChecksCounter
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
         private readonly ICache _cache;
 
         public WardenChecksCounter(ICache cache)
@@ -14,6 +16,7 @@ namespace Warden.Services.Features.Services
 
         public async Task<bool> IsInitializedAsync(string userId)
         {
+            Logger.Debug($"Checking if WardenChecks feature is initialized for user: '{userId}'.");
             var featureUsage = await _cache.GetAsync<WardenChecksUsage>(GetKey(userId));
 
             return featureUsage.HasValue;
@@ -21,6 +24,7 @@ namespace Warden.Services.Features.Services
 
         public async Task InitializeAsync(string userId, int limit)
         {
+            Logger.Debug($"Initializing WardenChecks feature for user: '{userId}' with limit: {limit}.");
             var featureUsage = new WardenChecksUsage
             {
                 Limit = limit
@@ -30,6 +34,7 @@ namespace Warden.Services.Features.Services
 
         public async Task<bool> CanUseAsync(string userId)
         {
+            Logger.Debug($"Checking if WardenChecks feature is can be used by user: '{userId}'.");
             var featureUsage = await _cache.GetAsync<WardenChecksUsage>(GetKey(userId));
 
             return featureUsage.HasNoValue || featureUsage.Value.CanUse;
@@ -37,6 +42,7 @@ namespace Warden.Services.Features.Services
 
         public async Task IncreaseUsageAsync(string userId)
         {
+            Logger.Debug($"Increasing WardenChecks feature usage for user: '{userId}'.");
             var key = GetKey(userId);
             var usage = await _cache.GetAsync<WardenChecksUsage>(key);
             if (usage.HasNoValue)
@@ -44,6 +50,7 @@ namespace Warden.Services.Features.Services
 
             usage.Value.Usage++;
             await _cache.AddAsync(key, usage.Value);
+            Logger.Debug($"WardenChecks feature was initialized for user: '{userId}' to: {usage.Value.Usage}.");
         }
 
         public async Task<int> GetUsageAsync(string userId)
@@ -55,11 +62,13 @@ namespace Warden.Services.Features.Services
 
         public async Task ResetUsageAsync(string userId)
         {
+            Logger.Debug($"Resetting WardenChecks feature usage for user: '{userId}'.");
             await SetUsageAsync(userId, 0);
         }
 
         public async Task SetUsageAsync(string userId, int usage)
         {
+            Logger.Debug($"Setting WardenChecks feature usage for user: '{userId}' to: {usage}.");
             var key = GetKey(userId);
             var featureUsage = await _cache.GetAsync<WardenChecksUsage>(key);
             if (featureUsage.HasNoValue)
