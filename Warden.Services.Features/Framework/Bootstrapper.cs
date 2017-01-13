@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Nancy.Bootstrapper;
 using NLog;
 using RawRabbit.Configuration;
-using Warden.Common.Caching;
 using Warden.Common.Commands;
 using Warden.Common.Extensions;
 using Warden.Common.Exceptionless;
@@ -20,6 +19,8 @@ using Warden.Services.Features.Settings;
 using Newtonsoft.Json;
 using Nancy;
 using System.Reflection;
+using Warden.Common.Caching.Redis;
+using Warden.Common.Caching;
 
 namespace Warden.Services.Features.Framework
 {
@@ -40,12 +41,14 @@ namespace Warden.Services.Features.Framework
             base.ConfigureApplicationContainer(container);
             container.Update(builder =>
             {
+                builder.RegisterInstance(_configuration.GetSettings<RedisSettings>());
                 builder.RegisterInstance(_configuration.GetSettings<MongoDbSettings>());
                 builder.RegisterInstance(_configuration.GetSettings<FeatureSettings>());
                 builder.RegisterInstance(_configuration.GetSettings<PaymentPlanSettings>());
                 builder.RegisterType<CustomJsonSerializer>().As<JsonSerializer>().SingleInstance();
                 builder.RegisterModule<MongoDbModule>();
                 builder.RegisterModule<InMemoryCacheModule>();
+                // builder.RegisterModule<RedisModule>();
                 builder.RegisterType<MongoDbInitializer>().As<IDatabaseInitializer>();
                 builder.RegisterType<DatabaseSeeder>().As<IDatabaseSeeder>();
                 builder.RegisterType<UserRepository>().As<IUserRepository>();

@@ -39,15 +39,15 @@ namespace Warden.Services.Features.Services
             if (user.HasNoValue)
                 return FeatureStatus.Unavailable;
             if (!user.Value.PaymentPlanId.HasValue)
-                return FeatureStatus.Unavailable;;
+                return FeatureStatus.Unavailable;
             var paymentPlan = await _userPaymentPlanRepository.GetAsync(user.Value.PaymentPlanId.Value);
             if (paymentPlan.HasNoValue)
-                return FeatureStatus.Unavailable;;
+                return FeatureStatus.Unavailable;
             var monthlySubscription = paymentPlan.Value.GetMonthlySubscription(DateTime.UtcNow);
             if (monthlySubscription == null)
-                return FeatureStatus.Unavailable;;
+                return FeatureStatus.Unavailable;
             if (!monthlySubscription.CanUseFeature(feature))
-                return FeatureStatus.Unavailable;;
+                return FeatureStatus.Unavailable;
 
             return FeatureStatus.Unavailable;
         }
@@ -59,11 +59,14 @@ namespace Warden.Services.Features.Services
                 return null;
 
             var plan = await _userPaymentPlanRepository.GetAsync(user.Value.PaymentPlanId.Value);
-            var foundFeature = plan.Value.Features.FirstOrDefault(x => x.Type == feature);
             var monthlySubscription = plan.Value.GetMonthlySubscription(DateTime.UtcNow);
+            var foundFeature = monthlySubscription.FeatureUsages.FirstOrDefault(x => x.Feature == feature);
+            if (foundFeature == null)
+                return null;
 
             return new FeatureLimit
             {
+                Usage = foundFeature.Usage,
                 AvailableTo = monthlySubscription.To,
                 HasMonthlyLimit = true,
                 Limit = foundFeature.Limit

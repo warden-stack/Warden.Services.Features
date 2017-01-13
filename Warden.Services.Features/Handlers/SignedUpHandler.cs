@@ -40,7 +40,7 @@ namespace Warden.Services.Features.Handlers
             var plan = await _userPaymentPlanService.GetCurrentPlanAsync(@event.UserId);
             var addWardenChecksFeature = plan.Value.Features.First(x => x.Type == FeatureType.AddWardenCheck);
             var monthlySubscription = plan.Value.GetMonthlySubscription(DateTime.UtcNow);
-            await _wardenChecksCounter.InitializeAsync(@event.UserId, addWardenChecksFeature.Limit, monthlySubscription.To);
+            await _wardenChecksCounter.InitializeAsync(@event.UserId, 0, addWardenChecksFeature.Limit, monthlySubscription.To);
             await _bus.PublishAsync(new UserPaymentPlanCreated(Guid.NewGuid(), @event.UserId, plan.Value.Id,
                 plan.Value.Name, plan.Value.MonthlyPrice));
         }

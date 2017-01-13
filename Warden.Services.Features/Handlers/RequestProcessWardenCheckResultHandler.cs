@@ -40,7 +40,8 @@ namespace Warden.Services.Features.Handlers
                 if (featureLimit.HasNoValue)
                     return;
 
-                await _wardenChecksService.InitializeAsync(command.UserId, featureLimit.Value.Limit, featureLimit.Value.AvailableTo);
+                await _wardenChecksService.InitializeAsync(command.UserId, 
+                   featureLimit.Value.Usage, featureLimit.Value.Limit, featureLimit.Value.AvailableTo);
             }
 
 

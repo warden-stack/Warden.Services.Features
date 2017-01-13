@@ -17,7 +17,7 @@ namespace Warden.Services.Features.Services
             _cache = cache;
         }
 
-        public async Task InitializeAsync(string userId, int limit, DateTime availableTo)
+        public async Task InitializeAsync(string userId, int usage, int limit, DateTime availableTo)
         {
             Logger.Debug($"Checking if WardenChecks feature is initialized for user: '{userId}'.");
             var featureUsage = await _cache.GetAsync<WardenChecksUsage>(GetKey(userId));
@@ -26,12 +26,13 @@ namespace Warden.Services.Features.Services
 
             featureUsage = new WardenChecksUsage
             {
+                Usage = usage,
                 Limit = limit,
                 AvailableTo = availableTo.Ticks
             };
-            await _cache.AddAsync(GetKey(userId), featureUsage.Value);
-            Logger.Debug($"Initialized WardenChecks feature usage for user: '{userId}'" + 
-                         $"with limit of: {limit} and will be available to: {availableTo}.");
+            await _cache.AddAsync(GetKey(userId), featureUsage.Value, TimeSpan.FromTicks(availableTo.Ticks));
+            Logger.Debug($"Initialized WardenChecks feature usage for user: '{userId}' " + 
+                         $"with usage of: {usage}/{limit} and it will be available to: {availableTo}.");
         }
 
         public async Task<FeatureStatus> GetFeatureStatusAsync(string userId)
@@ -65,7 +66,7 @@ namespace Warden.Services.Features.Services
 
                 return FeatureStatus.NotFound;
             }
-            if (!usage.Value.CanUse) 
+            if (usage.Value.Usage >= usage.Value.Limit || DateTime.UtcNow.Ticks > usage.Value.AvailableTo) 
             {
                 Logger.Debug($"Limit of {usage.Value.Limit} WardenChecks feature usage for user: '{userId}' was reached.");   
 
@@ -93,6 +94,7 @@ namespace Warden.Services.Features.Services
             featureUsage.Value.AvailableTo = availableTo.Ticks;
             featureUsage.Value.Usage = usage;
             await _cache.AddAsync(key, featureUsage.Value);
+            Logger.Debug($"WardenChecks feature usage for user: '{userId}' was set to: {usage}.");
         }
 
         private static string GetKey(string userId) => $"{userId}:checks";
@@ -102,7 +104,6 @@ namespace Warden.Services.Features.Services
             public long AvailableTo { get; set; }
             public int Limit { get; set; }
             public int Usage { get; set; }
-            public bool CanUse => Usage < Limit && DateTime.UtcNow.Ticks < AvailableTo;
         }
     }
 }
