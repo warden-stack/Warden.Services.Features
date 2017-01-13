@@ -16,12 +16,12 @@ namespace Warden.Services.Features.Handlers
         private readonly IBusClient _bus;
         private readonly IUserRepository _userRepository;
         private readonly IUserPaymentPlanService _userPaymentPlanService;
-        private readonly IWardenChecksCounter _wardenChecksCounter;
+        private readonly IWardenChecksService _wardenChecksCounter;
 
         public SignedUpHandler(IBusClient bus,
             IUserRepository userRepository,
             IUserPaymentPlanService userPaymentPlanService,
-            IWardenChecksCounter wardenChecksCounter)
+            IWardenChecksService wardenChecksCounter)
         {
             _bus = bus;
             _userRepository = userRepository;
@@ -39,7 +39,8 @@ namespace Warden.Services.Features.Handlers
             await _userPaymentPlanService.CreateDefaultAsync(@event.UserId);
             var plan = await _userPaymentPlanService.GetCurrentPlanAsync(@event.UserId);
             var addWardenChecksFeature = plan.Value.Features.First(x => x.Type == FeatureType.AddWardenCheck);
-            await _wardenChecksCounter.InitializeAsync(@event.UserId, addWardenChecksFeature.Limit);
+            var monthlySubscription = plan.Value.GetMonthlySubscription(DateTime.UtcNow);
+            await _wardenChecksCounter.InitializeAsync(@event.UserId, addWardenChecksFeature.Limit, monthlySubscription.To);
             await _bus.PublishAsync(new UserPaymentPlanCreated(Guid.NewGuid(), @event.UserId, plan.Value.Id,
                 plan.Value.Name, plan.Value.MonthlyPrice));
         }

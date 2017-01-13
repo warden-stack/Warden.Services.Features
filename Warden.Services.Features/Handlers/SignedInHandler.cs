@@ -12,12 +12,12 @@ namespace Warden.Services.Features.Handlers
         private readonly IBusClient _bus;
         private readonly IUserRepository _userRepository;
         private readonly IUserPaymentPlanService _userPaymentPlanService;
-        private readonly IWardenChecksCounter _wardenChecksCounter;
+        private readonly IWardenChecksService _wardenChecksCounter;
 
         public SignedInHandler(IBusClient bus,
             IUserRepository userRepository,
             IUserPaymentPlanService userPaymentPlanService,
-            IWardenChecksCounter wardenChecksCounter)
+            IWardenChecksService wardenChecksCounter)
         {
             _bus = bus;
             _userRepository = userRepository;

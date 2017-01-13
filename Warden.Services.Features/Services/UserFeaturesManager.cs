@@ -11,12 +11,12 @@ namespace Warden.Services.Features.Services
     public class UserFeaturesManager : IUserFeaturesManager
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
-        private readonly IWardenChecksCounter _wardenChecksCounter;
+        private readonly IWardenChecksService _wardenChecksCounter;
         private readonly IUserRepository _userRepository;
         private readonly IUserPaymentPlanRepository _userPaymentPlanRepository;
         private readonly PaymentPlanSettings _paymentPlanSettings;
 
-        public UserFeaturesManager(IWardenChecksCounter wardenChecksCounter,
+        public UserFeaturesManager(IWardenChecksService wardenChecksCounter,
             IUserRepository userRepository,
             IUserPaymentPlanRepository userPaymentPlanRepository,
             PaymentPlanSettings paymentPlanSettings)
@@ -31,20 +31,8 @@ namespace Warden.Services.Features.Services
         {
             if (!_paymentPlanSettings.Enabled)
                 return true;
-
-            var initializeWardenChecksUsage = false;
             if (feature == FeatureType.AddWardenCheck)
-            {
-                var wardenChecksUsageInitialized = await _wardenChecksCounter.IsInitializedAsync(userId);
-                if (wardenChecksUsageInitialized)
-                {
-                    return true;
-                }
-                else
-                {
-                    initializeWardenChecksUsage = true;
-                }
-            }
+                return await _wardenChecksCounter.CanUseAsync(userId);
 
             var user = await _userRepository.GetAsync(userId);
             if (user.HasNoValue)
@@ -59,11 +47,6 @@ namespace Warden.Services.Features.Services
                 return false;
             if (!monthlySubscription.CanUseFeature(feature))
                 return false;
-            if (!initializeWardenChecksUsage)
-                return true;
-
-            var wardenCheckFeature = monthlySubscription.FeatureUsages.First(x => x.Feature == FeatureType.AddWardenCheck);
-            await _wardenChecksCounter.InitializeAsync(userId, wardenCheckFeature.Limit);
 
             return true;
         }
@@ -75,13 +58,7 @@ namespace Warden.Services.Features.Services
 
             if (feature == FeatureType.AddWardenCheck)
             {
-                var canUseWardenCheckAsync = await _wardenChecksCounter.CanUseAsync(userId);
-                if (!canUseWardenCheckAsync)
-                    return;
-
-                Logger.Debug($"Increasing feature usage: '{feature}' for user: '{userId}'.");
-                await _wardenChecksCounter.IncreaseUsageAsync(userId);
-                var usage = await _wardenChecksCounter.GetUsageAsync(userId);
+                var usage = await _wardenChecksCounter.IncreaseUsageAsync(userId);
                 if (usage % _paymentPlanSettings.FlushWardenChecksLimit != 0)
                     return;
             }

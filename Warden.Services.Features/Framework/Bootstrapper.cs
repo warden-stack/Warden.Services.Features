@@ -51,7 +51,7 @@ namespace Warden.Services.Features.Framework
                 builder.RegisterType<UserRepository>().As<IUserRepository>();
                 builder.RegisterType<PaymentPlanRepository>().As<IPaymentPlanRepository>();
                 builder.RegisterType<UserPaymentPlanRepository>().As<IUserPaymentPlanRepository>();
-                builder.RegisterType<WardenChecksCounter>().As<IWardenChecksCounter>();
+                builder.RegisterType<WardenChecksService>().As<IWardenChecksService>();
                 builder.RegisterType<UserFeaturesManager>().As<IUserFeaturesManager>();
                 builder.RegisterType<UserPaymentPlanService>().As<IUserPaymentPlanService>();
                 builder.RegisterType<Handler>().As<IHandler>();
