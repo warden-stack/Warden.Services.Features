@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NLog;
+using Warden.Common.Types;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Repositories;
 using Warden.Services.Features.Settings;
@@ -11,44 +12,62 @@ namespace Warden.Services.Features.Services
     public class UserFeaturesManager : IUserFeaturesManager
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
-        private readonly IWardenChecksService _wardenChecksCounter;
+        private readonly IWardenChecksService _wardenChecksService;
         private readonly IUserRepository _userRepository;
         private readonly IUserPaymentPlanRepository _userPaymentPlanRepository;
         private readonly PaymentPlanSettings _paymentPlanSettings;
 
-        public UserFeaturesManager(IWardenChecksService wardenChecksCounter,
+        public UserFeaturesManager(IWardenChecksService wardenChecksService,
             IUserRepository userRepository,
             IUserPaymentPlanRepository userPaymentPlanRepository,
             PaymentPlanSettings paymentPlanSettings)
         {
-            _wardenChecksCounter = wardenChecksCounter;
+            _wardenChecksService = wardenChecksService;
             _userRepository = userRepository;
             _userPaymentPlanRepository = userPaymentPlanRepository;
             _paymentPlanSettings = paymentPlanSettings;
         }
 
-        public async Task<bool> IsFeatureAvailableAsync(string userId, FeatureType feature)
+        public async Task<FeatureStatus> GetFeatureStatusAsync(string userId, FeatureType feature)
         {
             if (!_paymentPlanSettings.Enabled)
-                return true;
+                return FeatureStatus.Available;
             if (feature == FeatureType.AddWardenCheck)
-                return await _wardenChecksCounter.CanUseAsync(userId);
+                return await _wardenChecksService.GetFeatureStatusAsync(userId);
 
             var user = await _userRepository.GetAsync(userId);
             if (user.HasNoValue)
-                return false;
+                return FeatureStatus.Unavailable;
             if (!user.Value.PaymentPlanId.HasValue)
-                return false;
+                return FeatureStatus.Unavailable;;
             var paymentPlan = await _userPaymentPlanRepository.GetAsync(user.Value.PaymentPlanId.Value);
             if (paymentPlan.HasNoValue)
-                return false;
+                return FeatureStatus.Unavailable;;
             var monthlySubscription = paymentPlan.Value.GetMonthlySubscription(DateTime.UtcNow);
             if (monthlySubscription == null)
-                return false;
+                return FeatureStatus.Unavailable;;
             if (!monthlySubscription.CanUseFeature(feature))
-                return false;
+                return FeatureStatus.Unavailable;;
 
-            return true;
+            return FeatureStatus.Unavailable;
+        }
+
+        public async Task<Maybe<FeatureLimit>> GetFeatureLimitAsync(string userId, FeatureType feature)
+        {
+            var user = await _userRepository.GetAsync(userId);
+            if (user.HasNoValue || !user.Value.PaymentPlanId.HasValue)
+                return null;
+
+            var plan = await _userPaymentPlanRepository.GetAsync(user.Value.PaymentPlanId.Value);
+            var foundFeature = plan.Value.Features.FirstOrDefault(x => x.Type == feature);
+            var monthlySubscription = plan.Value.GetMonthlySubscription(DateTime.UtcNow);
+
+            return new FeatureLimit
+            {
+                AvailableTo = monthlySubscription.To,
+                HasMonthlyLimit = true,
+                Limit = foundFeature.Limit
+            };
         }
 
         public async Task IncreaseFeatureUsageAsync(string userId, FeatureType feature)
@@ -58,7 +77,7 @@ namespace Warden.Services.Features.Services
 
             if (feature == FeatureType.AddWardenCheck)
             {
-                var usage = await _wardenChecksCounter.IncreaseUsageAsync(userId);
+                var usage = await _wardenChecksService.IncreaseUsageAsync(userId);
                 if (usage % _paymentPlanSettings.FlushWardenChecksLimit != 0)
                     return;
             }

@@ -21,9 +21,9 @@ namespace Warden.Services.Features.Handlers
 
         public async Task HandleAsync(RequestNewOrganization command)
         {
-            var featureAvailable = await _userFeaturesManager
-                .IsFeatureAvailableAsync(command.UserId, FeatureType.AddOrganization);
-            if (!featureAvailable)
+            var featureStatus = await _userFeaturesManager
+                .GetFeatureStatusAsync(command.UserId, FeatureType.AddOrganization);
+            if (featureStatus != FeatureStatus.Available)
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,
                     command.UserId, FeatureType.AddOrganization.ToString(),

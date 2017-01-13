@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NLog;
 using Warden.Common.Caching;
 using Warden.Common.Types;
+using Warden.Services.Features.Domain;
 
 namespace Warden.Services.Features.Services
 {
@@ -28,16 +29,16 @@ namespace Warden.Services.Features.Services
                 Limit = limit,
                 AvailableTo = availableTo.Ticks
             };
-            await _cache.AddAsync(GetKey(userId), featureUsage);
+            await _cache.AddAsync(GetKey(userId), featureUsage.Value);
             Logger.Debug($"Initialized WardenChecks feature usage for user: '{userId}'" + 
                          $"with limit of: {limit} and will be available to: {availableTo}.");
         }
 
-        public async Task<bool> CanUseAsync(string userId)
+        public async Task<FeatureStatus> GetFeatureStatusAsync(string userId)
         {
             var usage = await _cache.GetAsync<WardenChecksUsage>(GetKey(userId));
 
-            return CanUse(userId, usage);
+            return GetFeatureStatus(userId, usage);
         }
 
         public async Task<int> IncreaseUsageAsync(string userId)
@@ -45,8 +46,8 @@ namespace Warden.Services.Features.Services
             Logger.Debug($"Increasing WardenChecks feature usage for user: '{userId}'.");
             var key = GetKey(userId);
             var usage = await _cache.GetAsync<WardenChecksUsage>(key);
-            var canUse = CanUse(userId, usage);
-            if (!canUse)
+            var featureStatus = GetFeatureStatus(userId, usage);
+            if (featureStatus != FeatureStatus.Available)
                 return 0;
 
             usage.Value.Usage++;
@@ -56,22 +57,22 @@ namespace Warden.Services.Features.Services
             return usage.Value.Usage;
         }
 
-        private bool CanUse(string userId, Maybe<WardenChecksUsage> usage)
+        private FeatureStatus GetFeatureStatus(string userId, Maybe<WardenChecksUsage> usage)
         {
             if (usage.HasNoValue)
             {
                 Logger.Debug($"WardenChecks feature for user: '{userId}' does not exist.");
 
-                return false;
+                return FeatureStatus.NotFound;
             }
             if (!usage.Value.CanUse) 
             {
                 Logger.Debug($"Limit of {usage.Value.Limit} WardenChecks feature usage for user: '{userId}' was reached.");   
 
-                return false;
+                return FeatureStatus.Unavailable;
             }
 
-            return true;           
+            return FeatureStatus.Available;           
         }
 
         public async Task<int> GetUsageAsync(string userId)
@@ -101,7 +102,7 @@ namespace Warden.Services.Features.Services
             public long AvailableTo { get; set; }
             public int Limit { get; set; }
             public int Usage { get; set; }
-            public bool CanUse => Usage < Limit && AvailableTo < DateTime.UtcNow.Ticks;
+            public bool CanUse => Usage < Limit && DateTime.UtcNow.Ticks < AvailableTo;
         }
     }
 }

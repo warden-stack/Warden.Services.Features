@@ -21,9 +21,9 @@ namespace Warden.Services.Features.Handlers
 
         public async Task HandleAsync(RequestNewApiKey command)
         {
-            var featureAvailable = await _userFeaturesManager
-                .IsFeatureAvailableAsync(command.UserId, FeatureType.AddApiKey);
-            if (!featureAvailable)
+            var featureStatus = await _userFeaturesManager
+                .GetFeatureStatusAsync(command.UserId, FeatureType.AddApiKey);
+            if (featureStatus != FeatureStatus.Available)
             {
                 await _bus.PublishAsync(new FeatureRejected(command.Request.Id,
                     command.UserId, FeatureType.AddApiKey.ToString(),
