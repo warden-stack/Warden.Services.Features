@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nancy.Owin;
 using NLog.Extensions.Logging;
+using NLog.Web;
 using Warden.Services.Features.Framework;
 
 namespace Warden.Services.Features

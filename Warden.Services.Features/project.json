@@ -20,6 +20,7 @@
     "MongoDB.Driver": "2.4.1",
     "Nancy": "2.0.0-clinteastwood",
     "NLog.Extensions.Logging": "1.0.0-*",
+    "NLog.Web.AspNetCore": "4.3.0",
     "Microsoft.AspNetCore.Authentication.JwtBearer": "1.1.0",
     "Microsoft.AspNetCore.Cors": "1.1.0",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",
