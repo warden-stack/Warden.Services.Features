@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using RawRabbit;
-using Warden.Common.Commands;
+using Warden.Messages.Commands;
 using Warden.Services.Features.Domain;
 using Warden.Services.Features.Services;
-using Warden.Services.Features.Shared.Events;
-using Warden.Services.WardenChecks.Shared.Commands;
+using Warden.Messages.Events.Features;
+using Warden.Messages.Commands.WardenChecks;
 
 namespace Warden.Services.Features.Handlers
 {

@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using RawRabbit;
-using Warden.Common.Events;
+using Warden.Messages.Events;
 using Warden.Services.Features.Repositories;
 using Warden.Services.Features.Services;
-using Warden.Services.Users.Shared.Events;
+using Warden.Messages.Events.Users;
 
 namespace Warden.Services.Features.Handlers
 {

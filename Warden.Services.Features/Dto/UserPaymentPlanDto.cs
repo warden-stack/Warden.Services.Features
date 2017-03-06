@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Warden.Services.Features.Shared.Dto
+namespace Warden.Services.Features.Dto
 {
     public class UserPaymentPlanDto
     {
